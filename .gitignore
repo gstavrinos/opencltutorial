@@ -1,0 +1,7 @@
+CMakeCache.txt
+clTut
+*.cmake
+output.ppm
+Makefile
+CMakeFiles/*
+CMakeFiles

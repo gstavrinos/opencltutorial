@@ -106,12 +106,12 @@ Image RGBAtoRGB (const Image& input)
 std::string GetPlatformName (cl_platform_id id)
 {
 	size_t size = 0;
-	clGetPlatformInfo (id, CL_PLATFORM_NAME, 0, nullptr, &size);
+	clGetPlatformInfo (id, CL_PLATFORM_NAME, 0, NULL, &size);
 
 	std::string result;
 	result.resize (size);
 	clGetPlatformInfo (id, CL_PLATFORM_NAME, size,
-		const_cast<char*> (result.data ()), nullptr);
+		const_cast<char*> (result.data ()), NULL);
 
 	return result;
 }
@@ -119,12 +119,12 @@ std::string GetPlatformName (cl_platform_id id)
 std::string GetDeviceName (cl_device_id id)
 {
 	size_t size = 0;
-	clGetDeviceInfo (id, CL_DEVICE_NAME, 0, nullptr, &size);
+	clGetDeviceInfo (id, CL_DEVICE_NAME, 0, NULL, &size);
 
 	std::string result;
 	result.resize (size);
 	clGetDeviceInfo (id, CL_DEVICE_NAME, size,
-		const_cast<char*> (result.data ()), nullptr);
+		const_cast<char*> (result.data ()), NULL);
 
 	return result;
 }
@@ -133,7 +133,7 @@ void CheckError (cl_int error)
 {
 	if (error != CL_SUCCESS) {
 		std::cerr << "OpenCL call failed with error " << error << std::endl;
-		std::exit (1);
+		exit (1);
 	}
 }
 
@@ -164,7 +164,7 @@ int main ()
 {
 	// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetPlatformIDs.html
 	cl_uint platformIdCount = 0;
-	clGetPlatformIDs (0, nullptr, &platformIdCount);
+	clGetPlatformIDs (0, NULL, &platformIdCount);
 
 	if (platformIdCount == 0) {
 		std::cerr << "No OpenCL platform found" << std::endl;
@@ -174,7 +174,7 @@ int main ()
 	}
 
 	std::vector<cl_platform_id> platformIds (platformIdCount);
-	clGetPlatformIDs (platformIdCount, platformIds.data (), nullptr);
+	clGetPlatformIDs (platformIdCount, platformIds.data (), NULL);
 
 	for (cl_uint i = 0; i < platformIdCount; ++i) {
 		std::cout << "\t (" << (i+1) << ") : " << GetPlatformName (platformIds [i]) << std::endl;
@@ -182,7 +182,7 @@ int main ()
 
 	// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetDeviceIDs.html
 	cl_uint deviceIdCount = 0;
-	clGetDeviceIDs (platformIds [0], CL_DEVICE_TYPE_ALL, 0, nullptr,
+	clGetDeviceIDs (platformIds [0], CL_DEVICE_TYPE_ALL, 0, NULL,
 		&deviceIdCount);
 
 	if (deviceIdCount == 0) {
@@ -194,7 +194,7 @@ int main ()
 
 	std::vector<cl_device_id> deviceIds (deviceIdCount);
 	clGetDeviceIDs (platformIds [0], CL_DEVICE_TYPE_ALL, deviceIdCount,
-		deviceIds.data (), nullptr);
+		deviceIds.data (), NULL);
 
 	for (cl_uint i = 0; i < deviceIdCount; ++i) {
 		std::cout << "\t (" << (i+1) << ") : " << GetDeviceName (deviceIds [i]) << std::endl;
@@ -209,7 +209,7 @@ int main ()
 
 	cl_int error = CL_SUCCESS;
 	cl_context context = clCreateContext (contextProperties, deviceIdCount,
-		deviceIds.data (), nullptr, nullptr, &error);
+		deviceIds.data (), NULL, NULL, &error);
 	CheckError (error);
 
 	std::cout << "Context created" << std::endl;
@@ -231,7 +231,7 @@ int main ()
 		context);
 
 	CheckError (clBuildProgram (program, deviceIdCount, deviceIds.data (), 
-		"-D FILTER_SIZE=1", nullptr, nullptr));
+		"-D FILTER_SIZE=1", NULL, NULL));
 
 	// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateKernel.html
 	cl_kernel kernel = clCreateKernel (program, "Filter", &error);
@@ -251,7 +251,7 @@ int main ()
 
 	cl_mem outputImage = clCreateImage2D (context, CL_MEM_WRITE_ONLY, &format,
 		image.width, image.height, 0,
-		nullptr, &error);
+		NULL, &error);
 	CheckError (error);
 
 	// Create a buffer for the filter weights
@@ -274,8 +274,8 @@ int main ()
 	// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueNDRangeKernel.html
 	std::size_t offset [3] = { 0 };
 	std::size_t size [3] = { image.width, image.height, 1 };
-	CheckError (clEnqueueNDRangeKernel (queue, kernel, 2, offset, size, nullptr,
-		0, nullptr, nullptr));
+	CheckError (clEnqueueNDRangeKernel (queue, kernel, 2, offset, size, NULL,
+		0, NULL, NULL));
 	
 	// Prepare the result image, set to black
 	Image result = image;
@@ -286,7 +286,7 @@ int main ()
 	std::size_t region [3] = { result.width, result.height, 1 };
 	clEnqueueReadImage (queue, outputImage, CL_TRUE,
 		origin, region, 0, 0,
-		result.pixel.data (), 0, nullptr, nullptr);
+		result.pixel.data (), 0, NULL, NULL);
 
 	SaveImage (RGBAtoRGB (result), "output.ppm");
 
